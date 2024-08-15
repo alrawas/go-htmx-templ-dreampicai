@@ -1,0 +1,24 @@
+package home
+
+import (
+	"dreampicai/view/layout"
+	"dreampicai/view"
+)
+
+templ UserLikes(amount int) {
+	<div>{ view.String(amount) } user likes </div>
+}
+
+templ Index() {
+	@layout.App(true) {
+		<div class="w-full max-w-screen-xl py-12 mx-auto text-center">
+			<h1 class="text-5xl font-black leading-[1.2] mb-2">
+				Hello from the home page senior!
+			</h1>
+			<h2 class="mb-6 text-lg font-semibold ">This is some amazing AI application!</h2>
+			<a href="/generate" type="button" class="btn btn-primary">Generate images now <i class="fa-solid fa-arrow-right"></i></a>
+			<div hx-get="/long-process" hx-trigger="load" hx-indicator="#spinner" class="mt-20 text-2xl"></div>
+			<span id="spinner" class="loading loading-ring loading-lg htmx-indicator"></span>
+		</div>
+	}
+}

@@ -1,0 +1,179 @@
+package auth
+
+import "dreampicai/view/layout"
+import "github.com/nedpals/supabase-go"
+
+templ AccountSetup() {
+	@layout.App(true) {
+		<div class="w-full max-w-xl px-6 py-12 mx-auto mt-4 bg-base-300 rounded-xl">
+			<h1 class="mb-8 text-xl font-black text-center">Setup your account</h1>
+			@AccountSetupForm(AccountSetupParams{}, AccountSetupErrors{})
+		</div>
+	}
+}
+
+type AccountSetupErrors struct {
+	Username string
+}
+
+type AccountSetupParams struct {
+	Username string
+}
+
+templ AccountSetupForm(parmas AccountSetupParams, errors AccountSetupErrors) {
+	<form
+		hx-post="/account/setup"
+		hx-swap="outerHTML"
+	>
+		<label class="w-full max-w-xs form-control">
+			<div class="label">
+				<span class="label-text">Enter your username</span>
+			</div>
+			<input class="input input-bordered" type="text" name="username"/>
+			<div class="label">
+				if len(errors.Username) > 0 {
+					<span class="label-text text-error">{ errors.Username }</span>
+				}
+			</div>
+		</label>
+		<button class="btn btn-primary">setup account <i class="fa-solid fa-arrow-right"></i></button>
+	</form>
+}
+
+templ Login() {
+	@layout.App(false) {
+		<div class="flex justify-center mt-[calc(100vh-100vh+8rem)]">
+			<div class="w-full max-w-md px-8 py-12 bg-base-300 rounded-xl">
+				<h1 class="mb-6 text-xl font-black text-center">Login to dreampicai</h1>
+				@LoginForm(supabase.UserCredentials{}, LoginErrors{})
+			</div>
+		</div>
+	}
+}
+
+// templ Signup() {
+// 	@layout.App(false) {
+// 		<div class="flex justify-center mt-[calc(100vh-100vh+8rem)]">
+// 			<div class="w-full max-w-md px-8 py-12 bg-base-300 rounded-xl">
+// 				<h1 class="mb-6 text-xl font-black text-center">Signup to dreampicai</h1>
+// 				@SignupForm(SignupParams{}, SignupErrors{})
+// 			</div>
+// 		</div>
+// 	}
+// }
+templ SignupSuccess(email string) {
+	<div>A confirmation email has been sent to: <span class="font-semibold text-success">{ email }</span></div>
+}
+
+templ SigninMagicSuccess(email string) {
+	<div>An email with a magic link has been sent to: <span class="font-semibold text-success">{ email }</span></div>
+}
+
+// type SignupParams struct {
+// 	Email           string
+// 	Password        string
+// 	ConfirmPassword string
+// }
+
+// type SignupErrors struct {
+// 	Email           string
+// 	Password        string
+// 	ConfirmPassword string
+// }
+
+// templ SignupForm(params SignupParams, errors SignupErrors) {
+// 	<form
+// 		hx-post="/signup"
+// 		hx-swap="outerHTML"
+// 		class="space-y-4"
+// 	>
+// 		<div class="w-full">
+// 			<div class="label">
+// 				<span class="label-text">Email address</span>
+// 			</div>
+// 			<input name="email" type="email" value={ params.Email } required autocomplete="off" placeholder="Type here" class="w-full input input-bordered"/>
+// 			if len(errors.Email) > 0 {
+// 				<div class="label">
+// 					<span class="label-text-alt text-error">{ errors.Email }</span>
+// 				</div>
+// 			}
+// 		</div>
+// 		<div class="w-full">
+// 			<div class="label">
+// 				<span class="label-text">Password</span>
+// 			</div>
+// 			<input name="password" type="password" required autocomplete="off" class="w-full input input-bordered"/>
+// 			if len(errors.Password) > 0 {
+// 				<div class="label">
+// 					<span class="label-text-alt text-error">{ errors.Password }</span>
+// 				</div>
+// 			}
+// 		</div>
+// 		<div class="w-full">
+// 			<div class="label">
+// 				<span class="label-text">Confirm Password</span>
+// 			</div>
+// 			<input name="confirmPassword" type="password" required autocomplete="off" class="w-full input input-bordered"/>
+// 			if len(errors.Password) > 0 {
+// 				<div class="label">
+// 					<span class="label-text-alt text-error">{ errors.ConfirmPassword }</span>
+// 				</div>
+// 			}
+// 		</div>
+// 		// if len (errors.InvalidCredentials) > 0 {
+// 		// 	<div class="text-sm text-error">{ errors.InvalidCredentials }</div>
+// 		// }
+// 		<button type="submit" class="w-full btn btn-primary">Signup <i class="fa-solid fa-arrow-right"></i></button>
+// 	</form>
+// }
+
+type LoginErrors struct {
+	Email string
+	// Password           string
+	InvalidCredentials string
+}
+
+templ LoginForm(creds supabase.UserCredentials, errors LoginErrors) {
+	<form
+		hx-post="/login"
+		hx-swap="outerHTML"
+		class="space-y-4"
+	>
+		<div class="w-full">
+			<div class="label">
+				<span class="label-text">Email address</span>
+			</div>
+			<input name="email" type="email" value={ creds.Email } required autocomplete="off" placeholder="Type here" class="w-full input input-bordered"/>
+			if len(errors.Email) > 0 {
+				<div class="label">
+					<span class="label-text-alt text-error">{ errors.Email }</span>
+				</div>
+			}
+		</div>
+		// <div class="w-full">
+		// 	<div class="label">
+		// 		<span class="label-text">Password</span>
+		// 	</div>
+		// 	<input name="password" type="password" required autocomplete="off" placeholder="Type here" class="w-full input input-bordered"/>
+		// 	if len(errors.Password) > 0 {
+		// 		<div class="label">
+		// 			<span class="label-text-alt text-error">{ errors.Password }</span>
+		// 		</div>
+		// 	}
+		// </div>
+		if len (errors.InvalidCredentials) > 0 {
+			<div class="text-sm text-error">{ errors.InvalidCredentials }</div>
+		}
+		<button type="submit" class="w-full btn btn-primary">login <i class="fa-solid fa-arrow-right"></i></button>
+		<div class="divider">OR</div>
+		<a href="/login/provider/google" class="w-full btn btn-outline">login with Google <i class="fa-brands fa-google"></i></a>
+	</form>
+}
+
+templ CallbackScript() {
+	<script>
+		var url = window.location.href;
+		var newURL = url.replace("#", "?");
+		window.location = newURL;
+	</script>
+}

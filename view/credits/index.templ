@@ -1,0 +1,42 @@
+package credits
+
+import "dreampicai/view/layout"
+import "fmt"
+import "os"
+
+type Pricing struct {
+	Credits string
+	Price   string
+	PriceID string
+}
+
+templ Index() {
+	@layout.App(true) {
+		<div class="w-full max-w-4xl px-8 py-24 mx-auto mt-12 bg-base-300 rounded-xl">
+			<div class="flex justify-evenly">
+				@PriceCard(Pricing{
+					Credits: "100",
+					Price:   "9.99",
+					PriceID: os.Getenv("100_CREDITS_PRICE_ID"),
+				})
+				@PriceCard(Pricing{
+					Credits: "250",
+					Price:   "19.99",
+					PriceID: os.Getenv("250_CREDITS_PRICE_ID"),
+				})
+				@PriceCard(Pricing{
+					Credits: "550",
+					Price:   "29.99",
+					PriceID: os.Getenv("550_CREDITS_PRICE_ID"),
+				})
+			</div>
+		</div>
+	}
+}
+
+templ PriceCard(pricing Pricing) {
+	<div hx-post={ fmt.Sprintf("/checkout/create/%s", pricing.PriceID) } class="px-6 py-4 text-center border border-gray-700 rounded-lg cursor-pointer hover:border-secondary">
+		<div class="mb-8 text-2xl font-black text-secondary">{ pricing.Credits } credits</div>
+		<div class="text-xl">${ pricing.Price }</div>
+	</div>
+}

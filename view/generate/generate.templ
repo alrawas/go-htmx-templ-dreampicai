@@ -1,0 +1,128 @@
+package generate
+
+import (
+	"dreampicai/view/layout"
+	"dreampicai/types"
+	"dreampicai/view"
+	"fmt"
+	"dreampicai/view/ui"
+)
+
+type ViewData struct {
+	Images     []types.Image
+	FormParams FormParams
+	FormErrors FormErrors
+}
+
+templ Index(data ViewData) {
+	@layout.App(true) {
+		<div class="flex w-full h-[calc(100vh-69px)]">
+			<div class="w-[400px] border-r border-app p-4">
+				@Form(data.FormParams, data.FormErrors)
+			</div>
+			<div class="flex-1 bg-base-300">
+				@Gallery(data.Images)
+			</div>
+		</div>
+	}
+}
+
+type FormParams struct {
+	Prompt string
+	Amount int
+}
+
+type FormErrors struct {
+	Prompt        string
+	Amount        string
+	CreditsNeeded int
+	UserCredits   int
+	Credits       bool
+}
+
+templ Form(params FormParams, errors FormErrors) {
+	<form
+		hx-post="/generate"
+		hx-swap="outerHTML"
+	>
+		<div>
+			<label class="form-control">
+				<div class="label">
+					<span class="label-text">Enter your promt</span>
+				</div>
+				<textarea name="prompt" class="h-24 textarea textarea-bordered" placeholder="A woman in a white dress">{ params.Prompt }</textarea>
+				if len(errors.Prompt) > 0 {
+					<div class="label">
+						<span class="label-text text-error">{ errors.Prompt }</span>
+					</div>
+				}
+			</label>
+			<label class="my-4 form-control">
+				<div class="label">
+					<span class="label-text">How many images</span>
+				</div>
+				<div class="join">
+					for _, amount := range amounts {
+						if amount == view.String(params.Amount) {
+							<input class="join-item btn" value={ amount } type="radio" checked name="amount" aria-label={ amount }/>
+						} else {
+							<input class="join-item btn" value={ amount } type="radio" name="amount" aria-label={ amount }/>
+						}
+					}
+				</div>
+				if len(errors.Amount) > 0 {
+					<div class="label">
+						<span class="label-text text-error">{ errors.Amount }</span>
+					</div>
+				}
+			</label>
+			<button class="w-full mt-4 btn btn-primary">generate!</button>
+		</div>
+	</form>
+	if errors.Credits {
+		@ui.CreditsModal(errors.CreditsNeeded, errors.UserCredits)
+	}
+}
+
+templ Gallery(images []types.Image) {
+	<div class="grid w-full grid-cols-4 gap-4 p-4" id="gallery">
+		for _, image := range images {
+			@GalleryImage(image)
+		}
+	</div>
+}
+
+// style={ fmt.Sprintf("background-image: url('%s')", image.ImageLocation) }
+templ GalleryImage(image types.Image) {
+	if image.Status == types.ImageStatusCompleted {
+		<div class="relative cursor-pointer aspect-square rounded-xl">
+			<div hx-delete={ fmt.Sprintf("/generate/image/%d", image.ID) } class="absolute top-0 right-0 badge badge-primary badge-lg">
+				<i class="fa fa-remove"></i>
+			</div>
+			<img class="object-cover rounded-xl" src={ image.ImageLocation }/>
+		</div>
+	} else if image.Status == types.ImageStatusFailed {
+		<div class="relative flex items-center justify-center bg-red-100 aspect-[2/3] rounded-xl">
+			<div class="absolute top-0 right-0 badge badge-primary badge-lg">
+				<i class="fa fa-remove"></i>
+			</div>
+			<div>
+				<i class="text-5xl font-black fa-solid fa-bug text-slate-600"></i>
+			</div>
+		</div>
+	} else if image.Status == types.ImageStatusPending {
+		<div
+			hx-get={ fmt.Sprintf("/generate/image/status/%d", image.ID) }
+			hx-trigger="load delay:3s"
+			class="flex items-center justify-center bg-red-100 aspect-square rounded-xl"
+		>
+			<div>
+				<span class="text-gray-600 loading loading-spinner loading-lg"></span>
+			</div>
+		</div>
+	}
+}
+
+var amounts = []string{
+	"1", "2", "4", "8",
+}

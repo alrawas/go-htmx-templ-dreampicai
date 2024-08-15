@@ -1,0 +1,84 @@
+package settings
+
+import (
+	"dreampicai/view/layout"
+	"dreampicai/types"
+	"dreampicai/view/ui"
+	"dreampicai/view"
+)
+
+templ Index(user types.AuthenticatedUser) {
+	@layout.App(true) {
+		<div class="w-full max-w-2xl mx-auto mt-8">
+			<div>
+				<h1 class="pb-2 text-lg font-semibold border-b border-gray-700">Profile</h1>
+				@ProfileForm(ProfileParams{
+					Username: user.Account.Username,
+				}, ProfileErrors{})
+			</div>
+			<div class="mt-10">
+				<h1 class="pb-2 text-lg font-semibold border-b border-gray-700">Credits</h1>
+				<div class="items-center mt-8 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+					<dt class="">Credits</dt>
+					<dd class="sm:col-span-1 sm:mt-0">
+						<span>{ view.String(user.Account.Credits) }</span>
+					</dd>
+					<dd class="sm:col-span-1 sm:mt-0">
+						<button class="btn btn-outline"><i class="fa-solid fa-money-bill-transfer"></i> buy credits</button>
+					</dd>
+				</div>
+			</div>
+			// <div class="mt-10">
+			// 	<h1 class="pb-2 text-lg font-semibold border-b border-gray-700">Reset password</h1>
+			// 	<div class="items-center mt-8 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+			// 		<dt class="">Reset Password</dt>
+			// 		<dd class="sm:col-span-2 sm:mt-0">
+			// 			<form
+			// 				hx-post="/auth/reset-password"
+			// 				hx-swap="outerHTML"
+			// 			>
+			// 				<button class="btn btn-primary">reset password</button>
+			// 			</form>
+			// 		</dd>
+			// 	</div>
+			// </div>
+		</div>
+	}
+}
+
+type ProfileParams struct {
+	Username string
+	Success  bool
+}
+
+type ProfileErrors struct {
+	Username string
+}
+
+templ ProfileForm(params ProfileParams, errors ProfileErrors) {
+	<form
+		hx-put="/settings/account/profile"
+		hx-swap="outerHTML"
+	>
+		<div class="items-center mt-8 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+			<dt class="">Username</dt>
+			<dd class="sm:col-span-2 sm:mt-0">
+				if params.Success {
+					@ui.Toast("Username updated successfully")
+				}
+				<input
+					class="w-full max-w-sm input input-bordered"
+					value={ params.Username }
+					name="username"
+				/>
+				if len(errors.Username) > 0 {
+					<div class="mt-1 text-sm text-error">{ errors.Username }</div>
+				}
+			</dd>
+			<dt></dt>
+			<dd class="sm:col-span-2 sm:mt-0">
+				<button class="btn btn-primary">save</button>
+			</dd>
+		</div>
+	</form>
+}
